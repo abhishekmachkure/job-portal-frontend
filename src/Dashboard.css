@@ -1,0 +1,141 @@
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* HEADER */
+.dashboard-header h1 {
+  font-size: 28px;
+}
+
+.dashboard-header p {
+  color: #6b7280;
+}
+
+/* FILTERS */
+.filters {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.input-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.input-box input {
+  border: none;
+  outline: none;
+  width: 100%;
+}
+
+/* GRID */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* CARD */
+.card {
+  background: white;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* TITLE */
+.clickable {
+  cursor: pointer;
+}
+
+/* INFO */
+.job-info {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  color: gray;
+}
+
+/* SKILLS */
+.job-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.job-skills span {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+/* BUTTON */
+.job-actions {
+  margin-top: 10px;
+}
+
+.btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+.btn-success {
+  background: #10b981;
+}
+
+.btn-success.disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btn-danger {
+  background: #ef4444;
+}
+
+.btn-primary {
+  background: #3b82f6;
+}
+
+/* EMPTY */
+.empty {
+  text-align: center;
+  margin-top: 20px;
+  color: gray;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btn.disabled {
+  background: #9ca3af !important;
+  cursor: not-allowed;
+}

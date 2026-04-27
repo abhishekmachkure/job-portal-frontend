@@ -1,0 +1,105 @@
+.jd-container {
+  min-height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #e0e7ff, #f1f5f9);
+  padding: 20px;
+}
+
+/* CARD */
+.jd-card {
+  background: white;
+  padding: 35px;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 650px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+
+  animation: fadeSlide 0.6s ease;
+}
+
+/* Animation */
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.jd-title {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #1e293b;
+}
+
+/* INFO SECTION */
+.jd-info {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.jd-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  font-size: 15px;
+}
+
+/* SKILLS */
+.jd-skills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 25px;
+}
+
+.jd-skills span {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  transition: 0.3s;
+}
+
+.jd-skills span:hover {
+  background: #c7d2fe;
+}
+
+/* BUTTON */
+.jd-apply-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.jd-apply-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+
+.jd-apply-btn:disabled {
+  background: gray;
+  cursor: not-allowed;
+  transform: none;
+}
+.jd-apply-btn.applied {
+  background: #16a34a;
+  cursor: not-allowed;
+}

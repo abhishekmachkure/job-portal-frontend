@@ -1,0 +1,78 @@
+/* BACKGROUND */
+.auth-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(135deg, #fca5a5, #93c5fd);
+}
+
+/* CARD */
+.auth-card {
+  width: 360px;
+  padding: 30px;
+  border-radius: 20px;
+
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+/* TITLE */
+.auth-title {
+  margin-bottom: 20px;
+  color: white;
+}
+
+/* INPUT */
+.input-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: rgba(255,255,255,0.9);
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.input-box input {
+  border: none;
+  outline: none;
+  width: 100%;
+  background: transparent;
+}
+
+/* BUTTON */
+.auth-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 25px;
+  border: none;
+
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  color: white;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.auth-btn:hover {
+  transform: scale(1.05);
+}
+
+/* FOOTER */
+.auth-footer {
+  margin-top: 15px;
+  color: white;
+}
+
+.auth-footer span {
+  color: #1d4ed8;
+  cursor: pointer;
+  font-weight: bold;
+}
