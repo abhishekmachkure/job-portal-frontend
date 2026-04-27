@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import { Briefcase, Building2, MapPin, IndianRupee } from "lucide-react";
 import "./EditJobs.css";
 
+// ✅ API URL FIX
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 function EditJob() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -21,13 +24,18 @@ function EditJob() {
 
   const token = localStorage.getItem("token");
 
+  /* ================= FETCH JOB ================= */
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/jobs/${id}`);
-        if (!res.ok) return navigate("/admin");
+        const res = await fetch(`${API}/api/jobs/${id}`);
 
         const data = await res.json();
+
+        if (!res.ok) {
+          alert("Job not found ❌");
+          return navigate("/admin");
+        }
 
         setForm({
           title: data.title || "",
@@ -37,19 +45,24 @@ function EditJob() {
           skills: data.skills || ""
         });
 
-        setLoading(false);
-      } catch {
+      } catch (err) {
+        console.error(err);
+        alert("Failed to load job ❌");
         navigate("/admin");
       }
+
+      setLoading(false);
     };
 
     fetchJob();
   }, [id, navigate]);
 
+  /* ================= HANDLE CHANGE ================= */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  /* ================= UPDATE JOB ================= */
   const handleUpdate = async (e) => {
     e.preventDefault();
 
@@ -57,7 +70,7 @@ function EditJob() {
     setMessage("");
 
     try {
-      const res = await fetch(`http://localhost:5000/api/jobs/${id}`, {
+      const res = await fetch(`${API}/api/jobs/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -72,17 +85,23 @@ function EditJob() {
         setMessage(data.message || "Update failed ❌");
       } else {
         setMessage("Job updated successfully 🎉");
-        setTimeout(() => navigate("/admin"), 1200);
+
+        setTimeout(() => {
+          navigate("/admin");
+        }, 1200);
       }
 
-    } catch {
+    } catch (err) {
+      console.error(err);
       setMessage("Server error ❌");
     }
 
     setUpdating(false);
   };
 
-  if (loading) return <p style={{ padding: "20px" }}>Loading...</p>;
+  if (loading) {
+    return <p style={{ padding: "20px" }}>Loading...</p>;
+  }
 
   return (
     <div className="editjob-container">
@@ -95,25 +114,44 @@ function EditJob() {
 
           <div className="input-group">
             <Briefcase size={18} />
-            <input name="title" value={form.title} onChange={handleChange} />
+            <input
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="input-group">
             <Building2 size={18} />
-            <input name="company" value={form.company} onChange={handleChange} />
+            <input
+              name="company"
+              value={form.company}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="input-group">
             <MapPin size={18} />
-            <input name="location" value={form.location} onChange={handleChange} />
+            <input
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="input-group">
             <IndianRupee size={18} />
-            <input name="salary" value={form.salary} onChange={handleChange} />
+            <input
+              name="salary"
+              value={form.salary}
+              onChange={handleChange}
+              required
+            />
           </div>
 
-          {/* SKILLS */}
           <div className="input-group">
             <Briefcase size={18} />
             <input
