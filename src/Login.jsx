@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./Login.css";
 
+// ✅ Use environment variable (fallback for safety)
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 function Login({ setIsLoggedIn }) {
   const [form, setForm] = useState({
     email: "",
@@ -22,7 +25,7 @@ function Login({ setIsLoggedIn }) {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch(`${API}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -36,27 +39,35 @@ function Login({ setIsLoggedIn }) {
       const data = await res.json();
 
       if (res.ok) {
+        // ✅ Save token
         localStorage.setItem("token", data.token);
 
+        // ✅ Decode role
         const decoded = JSON.parse(atob(data.token.split(".")[1]));
         localStorage.setItem("role", decoded.role);
 
         setIsLoggedIn(true);
 
+        // ✅ Admin check
         if (form.role === "admin" && decoded.role !== "admin") {
           alert("Not an admin ❌");
           return;
         }
 
-        decoded.role === "admin"
-          ? navigate("/admin")
-          : navigate("/dashboard");
+        // ✅ Redirect
+        if (decoded.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
 
       } else {
-        alert(data.message);
+        alert(data.message || "Login failed");
       }
+
     } catch (err) {
-      alert("Server error");
+      console.error("Login error:", err);
+      alert("Server error ❌");
     }
   };
 
@@ -67,7 +78,7 @@ function Login({ setIsLoggedIn }) {
       <form className="login-card" onSubmit={handleLogin}>
         <h2>Welcome Back 👋</h2>
 
-        {/* 🔥 TOGGLE SWITCH */}
+        {/* ROLE TOGGLE */}
         <div className="toggle">
           <div
             className={`toggle-btn ${form.role === "admin" ? "active" : ""}`}
@@ -96,6 +107,7 @@ function Login({ setIsLoggedIn }) {
             placeholder="Email address"
             value={form.email}
             onChange={handleChange}
+            required
           />
         </div>
 
@@ -107,6 +119,7 @@ function Login({ setIsLoggedIn }) {
             placeholder="Password"
             value={form.password}
             onChange={handleChange}
+            required
           />
         </div>
 
