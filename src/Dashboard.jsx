@@ -10,6 +10,9 @@ import {
 } from "lucide-react";
 import "./Dashboard.css";
 
+// ✅ FIX: use env variable
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 function Dashboard() {
   const [jobs, setJobs] = useState([]);
   const [search, setSearch] = useState("");
@@ -26,7 +29,7 @@ function Dashboard() {
     if (!token) navigate("/", { replace: true });
   }, [token, navigate]);
 
-  /* LOAD FROM LOCALSTORAGE (FAST UI) */
+  /* LOAD FROM LOCALSTORAGE */
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("appliedJobs")) || [];
     setAppliedJobs(stored);
@@ -36,7 +39,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/jobs");
+        const res = await fetch(`${API}/api/jobs`);
         const data = await res.json();
         setJobs(data);
       } catch (err) {
@@ -46,23 +49,21 @@ function Dashboard() {
     fetchJobs();
   }, []);
 
-  /* FETCH APPLIED FROM BACKEND (SYNC) */
+  /* FETCH APPLIED */
   useEffect(() => {
     const fetchApplied = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/my-applications", {
+        const res = await fetch(`${API}/api/my-applications`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
         const data = await res.json();
 
         const ids = data
-          .filter((app) => app.job) // avoid null
+          .filter((app) => app.job)
           .map((app) => app.job._id.toString());
 
         setAppliedJobs(ids);
-
-        // ✅ store for persistence
         localStorage.setItem("appliedJobs", JSON.stringify(ids));
 
       } catch (err) {
@@ -76,7 +77,7 @@ function Dashboard() {
   /* DELETE */
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/jobs/${id}`, {
+      const res = await fetch(`${API}/api/jobs/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -92,7 +93,7 @@ function Dashboard() {
   /* APPLY */
   const handleApply = async (job) => {
     try {
-      const res = await fetch("http://localhost:5000/api/apply", {
+      const res = await fetch(`${API}/api/apply`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -108,19 +109,16 @@ function Dashboard() {
         setAppliedJobs((prev) => {
           if (prev.includes(id)) return prev;
           const updated = [...prev, id];
-
-          // ✅ store in localStorage
           localStorage.setItem("appliedJobs", JSON.stringify(updated));
-
           return updated;
         });
       } else {
-        alert(data.message);
+        alert(data.message || "Apply failed");
       }
 
     } catch (err) {
       console.log(err);
-      alert("Server error");
+      alert("Server error ❌");
     }
   };
 

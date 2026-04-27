@@ -8,6 +8,9 @@ import {
 } from "lucide-react";
 import "./AppliedJobs.css";
 
+// ✅ FIX: use environment variable
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 function AppliedJobs() {
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,17 +24,23 @@ function AppliedJobs() {
 
     const fetchApplications = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/my-applications", {
+        const res = await fetch(`${API}/api/my-applications`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
 
         const data = await res.json();
-        setApps(data);
+
+        // ✅ safety check
+        if (res.ok) {
+          setApps(data);
+        } else {
+          console.log("Error:", data.message);
+        }
 
       } catch (err) {
-        console.log(err);
+        console.log("Fetch error:", err);
       }
 
       setLoading(false);
@@ -45,7 +54,7 @@ function AppliedJobs() {
     if (!window.confirm("Withdraw this application?")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/applications/${id}`, {
+      const res = await fetch(`${API}/api/applications/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`
@@ -57,7 +66,7 @@ function AppliedJobs() {
       }
 
     } catch (err) {
-      console.log(err);
+      console.log("Delete error:", err);
     }
   };
 
