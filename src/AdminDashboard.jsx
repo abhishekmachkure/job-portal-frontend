@@ -28,19 +28,28 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  /* ✅ FIXED */
+  /* FETCH JOBS */
   const fetchJobs = useCallback(async () => {
-    const res = await fetch(`${API}/api/jobs`);
-    const data = await res.json();
-    setJobs(data);
+    try {
+      const res = await fetch(`${API}/api/jobs`);
+      const data = await res.json();
+      setJobs(data);
+    } catch (err) {
+      console.log(err);
+    }
   }, []);
 
+  /* FETCH APPLICATIONS */
   const fetchApplications = useCallback(async () => {
-    const res = await fetch(`${API}/api/applications`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await res.json();
-    setApplications(data);
+    try {
+      const res = await fetch(`${API}/api/applications`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setApplications(data);
+    } catch (err) {
+      console.log(err);
+    }
   }, [token]);
 
   useEffect(() => {
@@ -48,15 +57,20 @@ function AdminDashboard() {
     fetchApplications();
   }, [fetchJobs, fetchApplications]);
 
+  /* DELETE JOB */
   const handleDelete = async (id) => {
     if (!window.confirm("Delete job?")) return;
 
-    await fetch(`${API}/api/jobs/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    try {
+      await fetch(`${API}/api/jobs/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    setJobs((prev) => prev.filter((job) => job._id !== id));
+      setJobs((prev) => prev.filter((job) => job._id !== id));
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const chartData = [
@@ -67,11 +81,13 @@ function AdminDashboard() {
   return (
     <div className="container">
 
+      {/* HEADER */}
       <div className="dashboard-header">
         <h1>Admin Dashboard 👑</h1>
         <p>Manage jobs and track applications</p>
       </div>
 
+      {/* CHART + STATS */}
       <div className="dashboard-row">
         <div className="card chart-box">
           <h3>Analytics Overview</h3>
@@ -102,6 +118,7 @@ function AdminDashboard() {
         </div>
       </div>
 
+      {/* ACTION BUTTONS */}
       <div className="actions">
         <button className="btn btn-success" onClick={() => navigate("/add-job")}>
           <Plus size={16} /> Add Job
@@ -112,6 +129,7 @@ function AdminDashboard() {
         </button>
       </div>
 
+      {/* JOB SECTION */}
       <div className="jobs-section">
         <div className="section-header">
           <h2>💼 Jobs</h2>
@@ -122,24 +140,35 @@ function AdminDashboard() {
           {jobs.map((job) => (
             <div key={job._id} className="card job-card">
 
-              <h3>{job.title}</h3>
-              <p className="company">{job.company}</p>
-              <p className="location">{job.location}</p>
+              {/* TOP */}
+              <div className="job-top">
+                <h3>{job.title}</h3>
+                <p className="company">{job.company}</p>
+                <p className="location">{job.location}</p>
+              </div>
 
+              {/* SKILLS */}
               <div className="job-skills">
                 {job.skills
                   ? job.skills.split(",").map((skill, i) => (
                       <span key={i}>{skill.trim()}</span>
                     ))
-                  : <span>No skills</span>}
+                  : <span className="no-skill">No skills</span>}
               </div>
 
+              {/* ACTIONS */}
               <div className="job-actions">
-                <button onClick={() => navigate(`/edit-job/${job._id}`)}>
+                <button
+                  className="edit-btn"
+                  onClick={() => navigate(`/edit-job/${job._id}`)}
+                >
                   <Edit size={14}/> Edit
                 </button>
 
-                <button onClick={() => handleDelete(job._id)}>
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDelete(job._id)}
+                >
                   <Trash size={14}/> Delete
                 </button>
               </div>
