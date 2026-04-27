@@ -20,7 +20,7 @@ function Profile() {
 
   const token = localStorage.getItem("token");
 
-  /* ✅ FIXED */
+  /* ✅ FIXED useCallback */
   const fetchProfile = useCallback(async () => {
     try {
       const res = await fetch(`${API}/api/user/profile`, {
@@ -71,8 +71,11 @@ function Profile() {
   return (
     <div className="profile-container">
 
+      {/* HEADER */}
       <div className="profile-header">
-        <div className="avatar">{profile.name?.charAt(0)}</div>
+        <div className="avatar">
+          <User size={20} /> {/* ✅ USED */}
+        </div>
 
         <div>
           <h2>{profile.name}</h2>
@@ -82,29 +85,86 @@ function Profile() {
         </div>
       </div>
 
+      {/* BASIC INFO */}
       <div className="card">
-        <p><Mail/> {profile.email}</p>
-        <p><Phone/> {profile.phone || "Not added"}</p>
-        <p><MapPin/> {profile.location || "Not added"}</p>
-        <p><GraduationCap/> {profile.education || "Not added"}</p>
+        <p><Mail size={16}/> {profile.email}</p>
+        <p><Phone size={16}/> {profile.phone || "Not added"}</p>
+        <p><MapPin size={16}/> {profile.location || "Not added"}</p>
+        <p><GraduationCap size={16}/> {profile.education || "Not added"}</p>
+        <p><Globe size={16}/> {profile.linkedin || "Not added"}</p> {/* ✅ USED */}
       </div>
 
+      {/* SKILLS */}
       <div className="card">
-        <h3>Skills</h3>
+        <h3>🧠 Skills</h3>
         {profile.skills?.length > 0
           ? profile.skills.map((s, i) => <span key={i}>{s}</span>)
-          : "No skills"}
+          : <p>No skills</p>}
       </div>
 
+      {/* RESUME */}
       <div className="card">
-        <h3>Resume</h3>
-        {profile.resume
-          ? <a href={profile.resume} target="_blank" rel="noreferrer">View</a>
-          : "No resume"}
+        <h3><FileText size={16}/> Resume</h3> {/* ✅ USED */}
+        {profile.resume ? (
+          <a href={profile.resume} target="_blank" rel="noreferrer">
+            View Resume
+          </a>
+        ) : (
+          "No resume"
+        )}
       </div>
 
+      {/* EDIT MODE */}
       {isEditing && (
-        <button onClick={handleUpdate}>Save</button>
+        <div className="card">
+          <h3>Edit Profile</h3>
+
+          <input
+            value={form.name || ""}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            placeholder="Name"
+          />
+
+          <input
+            value={form.phone || ""}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            placeholder="Phone"
+          />
+
+          <input
+            value={form.location || ""}
+            onChange={(e) => setForm({ ...form, location: e.target.value })}
+            placeholder="Location"
+          />
+
+          <input
+            value={form.education || ""}
+            onChange={(e) => setForm({ ...form, education: e.target.value })}
+            placeholder="Education"
+          />
+
+          <input
+            value={form.linkedin || ""}
+            onChange={(e) => setForm({ ...form, linkedin: e.target.value })}
+            placeholder="LinkedIn URL"
+          />
+
+          <input
+            value={form.skills?.join(",") || ""}
+            onChange={(e) =>
+              setForm({ ...form, skills: e.target.value.split(",") })
+            }
+            placeholder="Skills (comma separated)"
+          />
+
+          <input
+            value={form.resume || ""}
+            onChange={(e) => setForm({ ...form, resume: e.target.value })}
+            placeholder="Resume link"
+          />
+
+          <button onClick={handleUpdate}>Save</button>
+        </div>
       )}
     </div>
   );
