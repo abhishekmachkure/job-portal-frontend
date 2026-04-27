@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Briefcase,
@@ -19,6 +19,8 @@ import {
 } from "recharts";
 import "./AdminDashboard.css";
 
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 function AdminDashboard() {
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
@@ -26,29 +28,30 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    fetchJobs();
-    fetchApplications();
-  }, []);
-
-  const fetchJobs = async () => {
-    const res = await fetch("http://localhost:5000/api/jobs");
+  /* ✅ FIXED */
+  const fetchJobs = useCallback(async () => {
+    const res = await fetch(`${API}/api/jobs`);
     const data = await res.json();
     setJobs(data);
-  };
+  }, []);
 
-  const fetchApplications = async () => {
-    const res = await fetch("http://localhost:5000/api/applications", {
+  const fetchApplications = useCallback(async () => {
+    const res = await fetch(`${API}/api/applications`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     const data = await res.json();
     setApplications(data);
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchJobs();
+    fetchApplications();
+  }, [fetchJobs, fetchApplications]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete job?")) return;
 
-    await fetch(`http://localhost:5000/api/jobs/${id}`, {
+    await fetch(`${API}/api/jobs/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -64,15 +67,12 @@ function AdminDashboard() {
   return (
     <div className="container">
 
-      {/* HEADER */}
       <div className="dashboard-header">
         <h1>Admin Dashboard 👑</h1>
         <p>Manage jobs and track applications</p>
       </div>
 
-      {/* ANALYTICS */}
       <div className="dashboard-row">
-
         <div className="card chart-box">
           <h3>Analytics Overview</h3>
 
@@ -102,7 +102,6 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* ACTION BUTTONS */}
       <div className="actions">
         <button className="btn btn-success" onClick={() => navigate("/add-job")}>
           <Plus size={16} /> Add Job
@@ -113,7 +112,6 @@ function AdminDashboard() {
         </button>
       </div>
 
-      {/* JOB SECTION */}
       <div className="jobs-section">
         <div className="section-header">
           <h2>💼 Jobs</h2>
@@ -124,36 +122,25 @@ function AdminDashboard() {
           {jobs.map((job) => (
             <div key={job._id} className="card job-card">
 
-              <div className="job-top">
-                <h3>{job.title}</h3>
-                <span className="company">{job.company}</span>
-              </div>
-
+              <h3>{job.title}</h3>
+              <p className="company">{job.company}</p>
               <p className="location">{job.location}</p>
 
-              {/* ✅ SKILLS DISPLAY */}
               <div className="job-skills">
                 {job.skills
-                  ? job.skills.split(",").map((skill, index) => (
-                      <span key={index}>{skill.trim()}</span>
+                  ? job.skills.split(",").map((skill, i) => (
+                      <span key={i}>{skill.trim()}</span>
                     ))
-                  : <span className="no-skill">No skills added</span>
-                }
+                  : <span>No skills</span>}
               </div>
 
               <div className="job-actions">
-                <button
-                  className="btn btn-primary"
-                  onClick={() => navigate(`/edit-job/${job._id}`)}
-                >
-                  <Edit size={14} /> Edit
+                <button onClick={() => navigate(`/edit-job/${job._id}`)}>
+                  <Edit size={14}/> Edit
                 </button>
 
-                <button
-                  className="btn btn-danger"
-                  onClick={() => handleDelete(job._id)}
-                >
-                  <Trash size={14} /> Delete
+                <button onClick={() => handleDelete(job._id)}>
+                  <Trash size={14}/> Delete
                 </button>
               </div>
 

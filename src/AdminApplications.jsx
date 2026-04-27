@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   User,
   Mail,
@@ -14,21 +14,24 @@ function AdminApplications() {
 
   const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    fetchApps();
-  }, []);
-
-  const fetchApps = async () => {
+  /* ✅ FIXED fetchApps */
+  const fetchApps = useCallback(async () => {
     try {
       const res = await fetch("http://localhost:5000/api/applications", {
         headers: { Authorization: `Bearer ${token}` }
       });
+
       const data = await res.json();
       setApps(data);
+
     } catch (err) {
       console.log(err);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchApps();
+  }, [fetchApps]);
 
   const updateStatus = async (id, status) => {
     try {
@@ -45,6 +48,7 @@ function AdminApplications() {
       );
 
       if (res.ok) fetchApps();
+
     } catch (err) {
       console.log(err);
     }
@@ -64,15 +68,14 @@ function AdminApplications() {
   });
 
   const total = apps.length;
-  const pending = apps.filter(a => a.status === "applied").length;
-  const accepted = apps.filter(a => a.status === "accepted").length;
-  const rejected = apps.filter(a => a.status === "rejected").length;
+  const pending = apps.filter((a) => a.status === "applied").length;
+  const accepted = apps.filter((a) => a.status === "accepted").length;
+  const rejected = apps.filter((a) => a.status === "rejected").length;
 
   return (
     <div className="admin-container">
       <h2>Applications</h2>
 
-      {/* STATS */}
       <div className="stats">
         <div className="stat-card applied"><h3>{total}</h3><p>Total</p></div>
         <div className="stat-card pending"><h3>{pending}</h3><p>Pending</p></div>
@@ -80,7 +83,6 @@ function AdminApplications() {
         <div className="stat-card rejected"><h3>{rejected}</h3><p>Rejected</p></div>
       </div>
 
-      {/* FILTER */}
       <div className="filters">
         <input
           placeholder="Search by name, email, job..."
@@ -99,7 +101,6 @@ function AdminApplications() {
         </select>
       </div>
 
-      {/* CARDS */}
       {filteredApps.length === 0 ? (
         <p className="empty">No applications found</p>
       ) : (
@@ -115,12 +116,19 @@ function AdminApplications() {
               <p><User size={14}/> {app.user?.name}</p>
               <p><Mail size={14}/> {app.user?.email}</p>
 
-              <p><Briefcase size={14}/> {app.user?.skills?.join(", ") || "Not provided"}</p>
+              <p>
+                <Briefcase size={14}/> {" "}
+                {app.user?.skills?.length > 0
+                  ? app.user.skills.join(", ")
+                  : "Not provided"}
+              </p>
 
               <p>
-                <FileText size={14}/>{" "}
+                <FileText size={14}/> {" "}
                 {app.user?.resume ? (
-                  <a href={app.user.resume} target="_blank">View Resume</a>
+                  <a href={app.user.resume} target="_blank" rel="noreferrer">
+                    View Resume
+                  </a>
                 ) : "Not uploaded"}
               </p>
 
