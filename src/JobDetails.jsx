@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { MapPin, Building2, IndianRupee } from "lucide-react";
 import "./JobDetails.css";
 
+// ✅ FIX: use environment variable
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 function JobDetails() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -13,24 +16,25 @@ function JobDetails() {
 
   const token = localStorage.getItem("token");
 
-  /* REDIRECT IF NO JOB */
+  /* ================= REDIRECT IF NO JOB ================= */
   useEffect(() => {
     if (!job) {
       navigate("/dashboard");
     }
   }, [job, navigate]);
 
-  /* ✅ CHECK APPLIED (FIXED) */
+  /* ================= CHECK APPLIED ================= */
   useEffect(() => {
     const fetchApplied = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/my-applications", {
+        const res = await fetch(`${API}/api/my-applications`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
         const data = await res.json();
 
-        // ✅ FIX: convert to string + safe filter
+        if (!Array.isArray(data)) return;
+
         const ids = data
           .filter((app) => app.job)
           .map((app) => app.job._id.toString());
@@ -40,19 +44,19 @@ function JobDetails() {
         }
 
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     };
 
     if (token && job) fetchApplied();
   }, [token, job]);
 
-  /* APPLY */
+  /* ================= APPLY ================= */
   const handleApply = async () => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/apply", {
+      const res = await fetch(`${API}/api/apply`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,12 +67,12 @@ function JobDetails() {
 
       const data = await res.json();
 
-      // ✅ handle both cases
       if (res.ok || data.message === "Already applied") {
         setApplied(true);
 
-        // ✅ optional sync with dashboard localStorage
+        // ✅ sync with dashboard
         const stored = JSON.parse(localStorage.getItem("appliedJobs")) || [];
+
         if (!stored.includes(job._id)) {
           localStorage.setItem(
             "appliedJobs",
@@ -77,11 +81,12 @@ function JobDetails() {
         }
 
       } else {
-        alert(data.message);
+        alert(data.message || "Failed to apply ❌");
       }
 
-    } catch {
-      alert("Server error");
+    } catch (err) {
+      console.error(err);
+      alert("Server error ❌");
     }
 
     setLoading(false);
@@ -114,13 +119,14 @@ function JobDetails() {
 
         {/* SKILLS */}
         <div className="jd-skills">
-          {job.skills &&
-            job.skills.split(",").map((skill, index) => (
-              <span key={index}>{skill.trim()}</span>
-            ))}
+          {job.skills
+            ? job.skills.split(",").map((skill, index) => (
+                <span key={index}>{skill.trim()}</span>
+              ))
+            : <span>No skills</span>}
         </div>
 
-        {/* BUTTON */}
+        {/* APPLY BUTTON */}
         <button
           className={`jd-apply-btn ${applied ? "applied" : ""}`}
           onClick={handleApply}
