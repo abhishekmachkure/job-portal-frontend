@@ -7,6 +7,9 @@ import {
 } from "lucide-react";
 import "./AdminApplications.css";
 
+/* ✅ FIX: use env instead of localhost */
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 function AdminApplications() {
   const [apps, setApps] = useState([]);
   const [search, setSearch] = useState("");
@@ -17,15 +20,26 @@ function AdminApplications() {
   /* ✅ FIXED fetchApps */
   const fetchApps = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/applications", {
+      if (!token) {
+        console.log("No token found");
+        return;
+      }
+
+      const res = await fetch(`${API}/api/applications`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       const data = await res.json();
-      setApps(data);
+
+      /* ✅ FIX: check response */
+      if (res.ok) {
+        setApps(data);
+      } else {
+        console.log("API Error:", data.message);
+      }
 
     } catch (err) {
-      console.log(err);
+      console.log("Fetch error:", err);
     }
   }, [token]);
 
@@ -36,7 +50,7 @@ function AdminApplications() {
   const updateStatus = async (id, status) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/applications/${id}`,
+        `${API}/api/applications/${id}`,
         {
           method: "PUT",
           headers: {
@@ -47,10 +61,16 @@ function AdminApplications() {
         }
       );
 
-      if (res.ok) fetchApps();
+      /* ✅ FIX: refresh only if success */
+      if (res.ok) {
+        fetchApps();
+      } else {
+        const data = await res.json();
+        console.log("Update error:", data.message);
+      }
 
     } catch (err) {
-      console.log(err);
+      console.log("Update error:", err);
     }
   };
 
