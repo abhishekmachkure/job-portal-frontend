@@ -9,7 +9,7 @@ import {
 import Header from "./Header";
 import Login from "./Login";
 import Dashboard from "./Dashboard";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // ✅ added useEffect
 import AddJob from "./AddJob";
 import JobDetails from "./JobDetails";
 import AppliedJobs from "./AppliedJobs";
@@ -18,7 +18,6 @@ import Register from "./Register";
 import AdminDashboard from "./AdminDashboard";
 import Profile from "./Profile";
 import AdminApplications from "./AdminApplications";
- 
 
 /* ================= WRAPPER ================= */
 function AppWrapper() {
@@ -33,13 +32,17 @@ function AppWrapper() {
 function App() {
   const location = useLocation();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    !!localStorage.getItem("token")
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // ✅ FIXED
 
   const role = localStorage.getItem("role");
 
   const hideHeaderRoutes = ["/", "/register"];
+
+  /* ✅ FIX: keep login state in sync */
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, [location.pathname]); // update on route change
 
   return (
     <>
@@ -78,7 +81,6 @@ function App() {
               : <Navigate to="/" replace />
           }
         />
-        
 
         {/* ADMIN DASHBOARD */}
         <Route
@@ -101,13 +103,13 @@ function App() {
         />
 
         <Route
-  path="/edit-job/:id"
-  element={
-    isLoggedIn && role === "admin"
-      ? <EditJob />
-      : <Navigate to="/" replace />
-  }
-/>
+          path="/edit-job/:id"
+          element={
+            isLoggedIn && role === "admin"
+              ? <EditJob />
+              : <Navigate to="/" replace />
+          }
+        />
 
         {/* ADMIN APPLICATIONS */}
         <Route
