@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Mail, Lock, User } from "lucide-react";
 import "./Register.css";
 
+/* ✅ FIX: USE ENV VARIABLE */
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 function Register() {
   const [form, setForm] = useState({
     name: "",
@@ -35,7 +38,8 @@ function Register() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      /* ✅ FIXED API URL */
+      const res = await fetch(`${API}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -45,17 +49,28 @@ function Register() {
 
       const data = await res.json();
 
+      console.log("Register response:", res.status, data); // ✅ debug
+
       if (res.ok) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", data.role);
 
         alert("Registered & Logged in 🎉");
-        navigate("/dashboard");
+
+        /* ✅ REDIRECT BASED ON ROLE (small improvement, not logic change) */
+        if (data.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
+
       } else {
-        alert(data.message);
+        alert(data.message || "Registration failed ❌");
       }
-    } catch {
-      alert("Server error");
+
+    } catch (err) {
+      console.log(err);
+      alert("Server error ❌");
     }
   };
 
@@ -65,7 +80,6 @@ function Register() {
 
         <h1 className="auth-title">Create Account ✨</h1>
 
-        {/* INPUTS */}
         <form onSubmit={handleRegister}>
 
           <div className="input-box">
@@ -73,6 +87,7 @@ function Register() {
             <input
               name="name"
               placeholder="Full Name"
+              value={form.name}
               onChange={handleChange}
             />
           </div>
@@ -82,6 +97,7 @@ function Register() {
             <input
               name="email"
               placeholder="Email address"
+              value={form.email}
               onChange={handleChange}
             />
           </div>
@@ -92,6 +108,7 @@ function Register() {
               type="password"
               name="password"
               placeholder="Password"
+              value={form.password}
               onChange={handleChange}
             />
           </div>

@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Briefcase, Building2, MapPin, IndianRupee } from "lucide-react";
 import "./AddJob.css";
 
+/* ✅ FIX: USE ENV VARIABLE */
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 function AddJob() {
   const [form, setForm] = useState({
     title: "",
@@ -33,7 +36,8 @@ function AddJob() {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/jobs", {
+      /* ✅ FIX: USE API VARIABLE */
+      const res = await fetch(`${API}/api/jobs`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -45,7 +49,7 @@ function AddJob() {
       const data = await res.json();
 
       if (!res.ok) {
-        setMessage(data.message || "Error adding job");
+        setMessage(data.message || "Error adding job ❌");
       } else {
         setMessage("Job added successfully ✅");
 
@@ -60,8 +64,9 @@ function AddJob() {
         setTimeout(() => navigate("/admin"), 1200);
       }
 
-    } catch {
-      setMessage("Server error");
+    } catch (err) {
+      console.log(err);
+      setMessage("Server error ❌");
     }
 
     setLoading(false);
@@ -116,7 +121,6 @@ function AddJob() {
             />
           </div>
 
-          {/* SKILLS INPUT */}
           <div className="input-group">
             <Briefcase size={18} />
             <input
